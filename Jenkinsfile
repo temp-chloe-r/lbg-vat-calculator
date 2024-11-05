@@ -3,20 +3,23 @@ pipeline {
 
   stages {
     stage('Checkout') {
-      steps {
-        git branch: 'main', url: 'https://github.com/temp-chloe-r/lbg-vat-calculator.git'
-      }
+        steps {
+          // Get some code from a GitHub repository
+          git branch: 'main', url: 'https://github.com/temp-chloe-r/lbg-vat-calculator.git'
+        }
     }
     stage('SonarQube Analysis') {
       environment {
         scannerHome = tool 'sonarqube'
       }
-      steps {
-        withSonarQubeEnv('sonarqube') {
-          sh "${scannerHome}/bin/sonar-scanner"
+        steps {
+            withSonarQubeEnv('sonarqube') {        
+              sh "${scannerHome}/bin/sonar-scanner"
         }
-        
-      }
+        timeout(time: 10, unit: 'MINUTES'){
+          waitForQualityGate abortPipeline: true
+        }
     }
   }
+}
 }
